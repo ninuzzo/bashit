@@ -1,0 +1,16 @@
+#!/bin/bash
+# Bashit: a poor-man, single-step debugger for Bash.
+
+[ "$1" ] || { echo "syntax: $(basename $0) script"; exit 1; }
+
+# Arrange for the DEBUG trap to be inherited by shell functions.
+set -T
+# Read directly from the terminal, not /dev/stdin,
+# which could have been redirected.
+trap '
+while read -p "[$BASH_SOURCE:$LINENO] $BASH_COMMAND $ " -e </dev/tty CMD && [ "$CMD" ]; do
+  eval $CMD
+done
+' DEBUG
+
+source "$1" "${*:2}"
